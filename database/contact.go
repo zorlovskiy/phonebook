@@ -34,11 +34,13 @@ func (c *ContactStore) GetByFName(fName string) ([]domain.Contact, error) {
 
 }
 
-/*func (c *ContactStore) Update(model *domain.Contact) error {
-
+func (c *ContactStore) Update(model *domain.Contact) error {
+	return c.db.Save(model).Error
 }
 
-func (c *ContactStore) DeleteByID(ID int) error {
+func (c *ContactStore) DeleteByID(ID string) error {
+	var cntc []domain.Contact
+
+	return c.db.Where("id = ?", ID).Delete(&cntc).Error
 
 }
-*/

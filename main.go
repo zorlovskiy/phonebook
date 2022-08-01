@@ -69,15 +69,26 @@ func main() {
 		}
 	}).Methods("POST")
 	// обновить данные контакта
-	router.HandleFunc("/contact/update", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/contact/update/{id}", func(w http.ResponseWriter, r *http.Request) {
+		var updateContact domain.Contact
 
-	}).Methods("POST")
+		err := json.NewDecoder(r.Body).Decode(&updateContact)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		err = contactStore.Update(&updateContact)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+	}).Methods("PUT")
 	// поиск по имени
 	router.HandleFunc("/contact/{fname}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		nameParams := vars["fname"]
-
-		//var fname domain.Contact
 
 		type GetByFNameResponse struct {
 			Contacts []domain.Contact `json:"contacts"`
@@ -99,7 +110,16 @@ func main() {
 
 	}).Methods("GET")
 	router.HandleFunc("/contact/{id}", func(w http.ResponseWriter, r *http.Request) {
-		// удаление по ID
+		vars := mux.Vars(r)
+		idDelete := vars["id"]
+
+		err := contactStore.DeleteByID(idDelete)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+
 	}).Methods("DELETE")
 
 	srv := &http.Server{
