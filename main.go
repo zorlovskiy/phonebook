@@ -38,7 +38,6 @@ func main() {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		//fmt.Printf("%+v\n", err)
-
 		log.Fatal(err)
 	}
 
@@ -48,10 +47,6 @@ func main() {
 	contactStore := database.NewContactStore(db)
 
 	router := mux.NewRouter().StrictSlash(true)
-
-	router.HandleFunc("/homePage", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Function Called: homePage()")
-	}).Methods("GET")
 
 	router.HandleFunc("/contact", func(w http.ResponseWriter, r *http.Request) {
 		var contact domain.Contact
@@ -69,15 +64,27 @@ func main() {
 		}
 	}).Methods("POST")
 	// обновить данные контакта
-	router.HandleFunc("/contact/update", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/contact/update/{id}", func(w http.ResponseWriter, r *http.Request) {
+		var updateContact domain.Contact
 
-	}).Methods("POST")
+		err := json.NewDecoder(r.Body).Decode(&updateContact)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		if err = contactStore.Update(&updateContact); err != nil {
+			http.Error(w, err.Error(),
+				http.StatusInternalServerError)
+			return
+		}
+
+	}).Methods("PUT")
+
 	// поиск по имени
 	router.HandleFunc("/contact/{fname}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		nameParams := vars["fname"]
-
-		//var fname domain.Contact
 
 		type GetByFNameResponse struct {
 			Contacts []domain.Contact `json:"contacts"`
@@ -96,10 +103,44 @@ func main() {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-
 	}).Methods("GET")
+
+	// поиск по номеру
+	router.HandleFunc("/contact/bynumber/{number}", func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		numbParams := vars["number"]
+
+		type GetByNumberResponse struct {
+			Contacts []domain.Contact `json:"contacts"`
+		}
+
+		var response GetByNumberResponse
+
+		response.Contacts, err = contactStore.GetByNumber(numbParams)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		err := json.NewEncoder(w).Encode(response)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+	}).Methods("GET")
+
+	//удаление по id
 	router.HandleFunc("/contact/{id}", func(w http.ResponseWriter, r *http.Request) {
-		// удаление по ID
+		vars := mux.Vars(r)
+		idDelete := vars["id"]
+
+		err := contactStore.DeleteByID(idDelete)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+
 	}).Methods("DELETE")
 
 	srv := &http.Server{

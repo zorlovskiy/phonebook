@@ -17,28 +17,47 @@ func NewContactStore(db *gorm.DB) *ContactStore {
 	}
 }
 
+//добавление контакта
 func (c *ContactStore) Create(model *domain.Contact) error {
 	return c.db.Create(model).Error
 
 }
 
+//поиск по имени
 func (c *ContactStore) GetByFName(fName string) ([]domain.Contact, error) {
-	var cntc []domain.Contact
-	err := c.db.Where("f_name LIKE ?", fName).Find(&cntc).Error
+	var byName []domain.Contact
+	err := c.db.Where("f_name LIKE ?", fName).Find(&byName).Error
 
 	if err != nil {
 		return nil, err
 	}
 
-	return cntc, nil
+	return byName, nil
 
 }
 
-/*func (c *ContactStore) Update(model *domain.Contact) error {
+//поиск по номеру
+func (c *ContactStore) GetByNumber(number string) ([]domain.Contact, error) {
+	var byNumber []domain.Contact
+	err := c.db.Where("phone_number LIKE ?", number).Find(&byNumber).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return byNumber, nil
 
 }
 
-func (c *ContactStore) DeleteByID(ID int) error {
+//обновление контакта
+func (c *ContactStore) Update(model *domain.Contact) error {
+	return c.db.Save(model).Error
+}
+
+//удаление контакта
+func (c *ContactStore) DeleteByID(ID string) error {
+	var cntc []domain.Contact
+
+	return c.db.Where("id = ?", ID).Delete(&cntc).Error
 
 }
-*/

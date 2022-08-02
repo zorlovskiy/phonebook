@@ -1,10 +1,10 @@
 package domain
 
 type Contact struct {
-	Id          int    `json:"id""`
+	Id          int    `json:"id"`
 	FName       string `json:"fname"`
 	Sname       string `json:"sname"`
-	PhoneNumber int    `json:"number"`
+	PhoneNumber string `json:"number"`
 }
 
 /*
