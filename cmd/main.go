@@ -10,8 +10,9 @@ import (
 	"github.com/caarlos0/env/v6"
 	"github.com/gorilla/mux"
 	"github.com/zorlovskiy/phonebook/config"
-	"github.com/zorlovskiy/phonebook/database"
 	"github.com/zorlovskiy/phonebook/domain"
+
+	postgresRepo "github.com/zorlovskiy/phonebook/repository/postgres"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -44,7 +45,7 @@ func main() {
 	db.AutoMigrate(&domain.Contact{})
 
 	// инит структуры которая работает с базой
-	contactStore := database.NewContactStore(db)
+	contactStore := postgresRepo.NewContactStore(db)
 
 	router := mux.NewRouter().StrictSlash(true)
 

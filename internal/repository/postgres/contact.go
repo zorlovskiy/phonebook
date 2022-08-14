@@ -1,9 +1,7 @@
-package database
+package postgres
 
 import (
-
-	//"github.com/jinzhu/gorm"
-	"github.com/zorlovskiy/phonebook/domain"
+	"github.com/zorlovskiy/phonebook/internal/models"
 	"gorm.io/gorm"
 )
 
@@ -18,14 +16,14 @@ func NewContactStore(db *gorm.DB) *ContactStore {
 }
 
 //добавление контакта
-func (c *ContactStore) Create(model *domain.Contact) error {
+func (c *ContactStore) Create(model *models.Contact) error {
 	return c.db.Create(model).Error
 
 }
 
 //поиск по имени
-func (c *ContactStore) GetByFName(fName string) ([]domain.Contact, error) {
-	var byName []domain.Contact
+func (c *ContactStore) GetByFName(fName string) ([]models.Contact, error) {
+	var byName []models.Contact
 	err := c.db.Where("f_name LIKE ?", fName).Find(&byName).Error
 
 	if err != nil {
@@ -37,8 +35,8 @@ func (c *ContactStore) GetByFName(fName string) ([]domain.Contact, error) {
 }
 
 //поиск по номеру
-func (c *ContactStore) GetByNumber(number string) ([]domain.Contact, error) {
-	var byNumber []domain.Contact
+func (c *ContactStore) GetByNumber(number string) ([]models.Contact, error) {
+	var byNumber []models.Contact
 	err := c.db.Where("phone_number LIKE ?", number).Find(&byNumber).Error
 
 	if err != nil {
@@ -50,13 +48,13 @@ func (c *ContactStore) GetByNumber(number string) ([]domain.Contact, error) {
 }
 
 //обновление контакта
-func (c *ContactStore) Update(model *domain.Contact) error {
+func (c *ContactStore) Update(model *models.Contact) error {
 	return c.db.Save(model).Error
 }
 
 //удаление контакта
 func (c *ContactStore) DeleteByID(ID string) error {
-	var cntc []domain.Contact
+	var cntc []models.Contact
 
 	return c.db.Where("id = ?", ID).Delete(&cntc).Error
 
