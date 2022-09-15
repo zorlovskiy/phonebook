@@ -3,32 +3,31 @@ package usecase
 import "github.com/zorlovskiy/phonebook/internal/models"
 
 type ContactUseCase struct {
-	repo ContactRepository
+	Repo ContactRepository
 }
 
-func New(r ContactRepository) *ContactUseCase {
+func NewContactUseCase(r ContactRepository) *ContactUseCase {
 	return &ContactUseCase{
-		repo: r,
+		Repo: r,
 	}
 }
 
 func (uc ContactUseCase) Create(model *models.Contact) error {
-	return uc.repo.Create(model)
-
-}
-
-func (uc ContactUseCase) GetByFName(fName string) ([]models.Contact, error) {
-	return uc.repo.GetByFName(fName)
+	return uc.Repo.Create(model)
 }
 
 func (uc ContactUseCase) GetByNumber(number string) ([]models.Contact, error) {
-	return uc.repo.GetByNumber(number)
+	return uc.Repo.GetByNumber(number)
+}
+
+func (uc ContactUseCase) GetByFName(fname string) ([]models.Contact, error) {
+	return uc.Repo.GetByFName(fname)
 }
 
 func (uc ContactUseCase) Update(model *models.Contact) error {
-	return uc.repo.Update(model)
+	return uc.Repo.Update(model)
 }
 
 func (uc ContactUseCase) Delete(ID string) error {
-	return uc.repo.Delete(ID)
+	return uc.Repo.DeleteByID(ID)
 }
